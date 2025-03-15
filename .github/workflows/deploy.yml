@@ -1,10 +1,9 @@
-name: Deploy MkDocs 
+name: Deploy MkDocs
 on:
   push:
     braches:
       - master
-
-  workflow_dispatch:
+  workflow_dispatch: null
 
 permissions:
   contents: write
@@ -12,42 +11,16 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-     - name: Checkout repo content
-       uses: actions/checkout@v4
+      - name: Checkout repo content
+        uses: actions/checkout@v4
 
-     - name: Setup python
-       uses: actions/setup-python@v4
-       with:
-         python_version: "3.x"
+      - name: Setup python
+        uses: actions/setup-python@v4
+      
+      - run: pip install mkdocs
 
-     - run: pip install mkdocs
+      - run: mkdocs gh-deploy --config-file mkdocs.yml --force
 
-     - run: mkdocs gh-deploy --config-file mkdocs.yml --force
-
-  deploy:
-    needs: build
-    environment:
-      name: gh-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-	steps:
-     - name: Checkout
-       uses: actions/checkout@v4
-       with:
-         ref: gh-pages
-
-     - name: Setup Pages
-       uses: actions/configure-pages@v5
-
-     - name: Upload artifact
-       uses: actions/upload-pages-artifact@v3
-       with:
-         path: '.'
-
-     - name: Deploy to GH Pages
-       id: deployment
-       uses: actions/deploy-pages@v4
-    
